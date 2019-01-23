@@ -1,0 +1,105 @@
+*创建对象时：{key：value} （嵌套字面量方法）key 的双引号引起问题：当key中有空格、连接符、保留字、关键字时，key需加引号。
+*函数声明和函数表达式：
+function add(){};//函数声明  （可以在函数声明前调用）
+var add = function(){};//函数表达式  （不可以在函数声明前调用  预解析函数为underfined）
+*构造函数：(函数名首字母必须大写)
+function Person(name,age){//形参名
+	this.name = name;//this指向的是实例化的对象 =》person  普通函数this指向当前函数调用者
+	this.age = age;
+	this.todo = function(){
+		return this.name;
+	}
+}
+var person = new Person("tff",20);//调用该函数 
+person.name;//获取函数的属性
+person.todo();//获取函数的方法
+*构造函数和普通函数的区别
+1、构造函数this指向创建的对象实例上，普通函数this指向函数的调用者
+2、命名：构造函数函数名需大写 
+*阻止浏览器的默认行为：
+1、当事件函数为  对象.事件 = 函数名；时，需在函数名对应的函数里加上 return false;
+2、当使用事件对象：对象.addEventListener("click",函数名，[事件的传播方式：默认为false])；（事件监听）时，需要在函数名对应的函数里使用event.preventDefault();
+*事件的传播：
+在默认情况下，点击页面的一个标签，处在传播路径上的标签都会监听到对应的事件。（例如嵌套div  点击里面的div时 它的传播路径上的标签（dom树从点击的标签一直往上（一条线路） 就是传播路径）也会监听到对应的事件。无论它们是否叠在一起。）
+*事件流：对应标签接收到事件的顺序
+两大阶段：
+捕获阶段：从起始点=》目标位置（传播路径的起点：html  目标位置：执行事件的标签）
+冒泡阶段：从目标位置=》起始点（从执行时间的标签到起始位（一般为html））
+对象.addEventListener("click",函数名，[事件的传播方式：默认为false])；
+false：冒泡阶段执行  true：捕获阶段执行  （无论为false还是true，传播路径上的标签都会执行其对应的事件，只是执行事件的先后顺序不一样。）
+阻止冒泡阶段：event.stopPropagation(); //当执行一个标签的时间时，其传播路径上的标签就不会执行其对应的事件
+*事件代理：
+例如：ul 下有多个li  这时只需要绑定ul的点击事件，不论点击哪一个li，通过冒泡阶段都可以执行ul的点击事件
+*获取页面滚动条滚动的距离实现菜单相对于滚动页面某位置固定：(监听浏览器的页面滚动事件)
+window.onscroll = function(){
+	var scrollTop = document.documentElement.scrollTop || document.body.scrollTop || document.pageYOffset;//获取滚动条滚动距离最上边的距离
+	//该方法存在兼容性问题，在低版本ie里采用：document.body.scrollTop; 苹果采用：document.pageYOffset;
+	if(scrollTop >=260 ){
+		//菜单的区块元素固定定位在页面某一位置
+	}else{
+		//菜单的区块元素和之前的效果一样
+	}
+}
+*设置区块元素垂直居中：
+ul>li::before{
+        height: 100%;
+        display: inline-block;
+        content:"";
+        vertical-align: middle;
+}
+*设置父元素不受子元素宽度影响时，给父元素相对定位，子元素设置为绝对定位即可使父元素不受子元素宽度影响。
+*搜索框内打calc快捷键调出计算器 
+*通过控制元素高度实现元素在页面右下角慢慢向上移动出现和慢慢向下移动直至消失不见
+var oDiv = document.getElementById("div");
+var oHeight = 0；
+window.onload = function(){  //当页面加载后，使元素慢慢出现
+	var timer = setInterval(function(){
+		if(oHeight < div的高度){//使页面消失时：if(oHeight > 0)
+			oHeight += 2;//使页面消失时：oHeight -= 2;
+			oDiv.style.height = oHeight + "px";
+		}else{
+			oDiv.style.height = "div的高度";//使页面消失时：oDiv.style.height = 0;
+			oHeight = 高度；//使页面消失时：oHeight = 0;
+			clearInterval(timer);
+		}	
+	},20)；
+}
+*自动切换焦点图
+var oPointer = document.getElementById("pointer");//获取焦点边框图
+for(var i = 0;i<leftImg.length;i++){
+	leftImg[i].mouseover = function(){
+		oPointer.style.top = (i+1)*div的高度+"px"；
+		leftImg[i].index = i;
+		for(var i = 0;i<rightImg.length;i++){
+			if(i == this.index){
+				rightImg[i].style.display = "inline-block";
+			}else{
+				rightImg[i].style.display = "none";
+			}
+		}
+	}
+}
+*尽量将script标签及引入文件放在body的最下面（所有元素最后后面），否则有可能出现元素获取不到和网页加载过慢的问题（原因：所有的代码都是从上往下执行并解析的，当script在head里时，js获取元素时，因为没有解析到下面的元素，所以会导致获取不到元素，当js代码解析完成执行时间过长时，下面的元素就会等到js执行完之后再显示，就会显示网页加载太慢的感觉。（js里的代码无论放在哪都会执行三步：下载、解析、执行，放在head里时则会先执行js再解析body里的元素，网页则有可能加载过慢。））
+*延迟加载：表示脚本可以延迟到文档完全被解析和显示之后再执行。
+和将script标签放在body最下面差不多一致
+<script defer src="1.js"></script>
+*异步加载：表示应该立即下载脚本，但不应妨碍页面中其他操作。
+<script async src="1.js"></script>
+js运行和html生成同时进行
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
